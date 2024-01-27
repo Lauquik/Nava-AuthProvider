@@ -1,28 +1,61 @@
 import React, { useState } from 'react';
-
+import useLoginStore from './store/login';
+import ThankYou from './ThankYou';
 interface VerifyProps {
+    phone: string;
     username: string;
     redirectUri: string;
 }
 
+interface VerifyResponse {
+    user_id: string;
+    username: string;
+    email: string;
+    jwt_token: string;
+    expires_in: number;
+  }
+
 const Verify: React.FC<VerifyProps> = (props) => {
     const [otp, setOtp] = useState<string>('');
     const [error, setError] = useState<string>('');
+    const [isSignInSuccess, setSignInSuccess] = useState<boolean>(false);
 
-    const handleVerify = () => {
-        const verificationCode = '123456';
-        const token = "thistokenwilgeneratebyapi"
-        const endpoint = import.meta.env.VITE_APIENDPOINT; 
-        if (otp === verificationCode) {
-            setError('');
-            window.location.href = `${props.redirectUri}?token=${token}&apiendpoint=${endpoint}`;
+
+    const { setAuthResponse } = useLoginStore(({ setAuthResponse }) => ({
+        setAuthResponse
+    }));
+
+    const handleVerify = async () => {
+        const endpoint = import.meta.env.VITE_API_ENDPOINT; 
+        const verify = {
+            phone: props.phone,
+            otp: otp,
+        }
+        console.log(JSON.stringify(verify))
+        const response = await fetch(import.meta.env.VITE_VERIFY_ENDPOINT || '', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(verify),
+        });
+        if (response.ok) {
+            const responseData: VerifyResponse = await response.json();
+            setAuthResponse({expiresAt: Number(responseData.expires_in)})
+            console.log(responseData)
+            setSignInSuccess(true);
+            window.location.href = `${props.redirectUri}?token=${responseData.jwt_token}&apiendpoint=${endpoint}`;
         } else {
             setError('Invalid OTP. Please retry.')
             setOtp('')
-            console.log('Invalid OTP');
         }
     };
 
+    if(isSignInSuccess) {
+        return (
+            <ThankYou />
+        )
+    }
 
     return (
         <div className="flex flex-col h-screen items-center justify-center">

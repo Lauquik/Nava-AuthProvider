@@ -1,6 +1,17 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import Verify from './Verify';
+import ThankYou from './ThankYou';
+import useLoginStore from './store/login';
+
+interface SignInResponse {
+    user_id: string;
+    username: string;
+    email: string;
+    phone: string;
+    additional_info: string;
+    sessions: string[];
+    token: string;
+}
 
 const SignIn: React.FC = () => {
     const location = useLocation();
@@ -11,28 +22,51 @@ const SignIn: React.FC = () => {
     const [error, setError] = useState<string>('');
     const redirectUri = searchParams.get('redirecturi') || '';
     const clientId = searchParams.get('clientid') || '';
+    const { setAuthResponse } = useLoginStore(({ setAuthResponse }) => ({
+        setAuthResponse
+    }));
 
-    const handleSignIn = () => {
-        if (email === 'admin' && password === 'admin' && clientId === '1234567890') {
+    const handleSignIn = async () => {
+        const endpoint = import.meta.env.VITE_API_ENDPOINT;
+        const response = await fetch(import.meta.env.VITE_SIGNIN_ENDPOINT, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: email,
+                password: password
+            })
+        });
+    
+        if (response.ok) {
+            const data:SignInResponse = await response.json();
+            console.log(data);
             setSignInSuccess(true);
             setError('');
-            alert('Sign in successful')
+            
+            const date = new Date();
+            date.setDate(date.getDate() + 30); 
+            const expiresAt = date.getTime(); 
+            
+            setAuthResponse({ expiresAt });
+            window.location.href = `${redirectUri}?token=${data.token}&apiendpoint=${endpoint}`;
         } else {
-            setError('Invalid credentials. Please retry.')
+            setError('Invalid credentials. Please retry.');
             console.log('Invalid credentials');
         }
     };
 
     if (isSignInSuccess) {
         return (
-            <Verify redirectUri={redirectUri} username={email} />
+            <ThankYou />
         );
     }
 
     return (
         <>
             <div className="flex flex-col h-screen items-center justify-center">
-                <h1 className='text-2xl my-8 text-center'>Nava-Assist 2 Factor Authentication</h1>
+                <h1 className='text-2xl my-8 text-center'>Nava Authentication</h1>
                 <div className="bg-white shadow-md rounded px-8 pb-8 mb-4">
                     <h2 className="text-2xl mb-4">Sign In</h2>
                     <form>

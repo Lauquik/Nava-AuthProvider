@@ -12,16 +12,42 @@ const SignUp: React.FC = () => {
     const [phoneNumber, setPhoneNumber] = useState<string>('');
     const [isSignupSuccess, setSignupSuccess] = useState<boolean>(false);
     const redirectUri = searchParams.get('redirecturi') || '';
+
     // const clientId = searchParams.get('clientid') || '';
 
-    const handleSignUp = () => {
-        console.log('Sign up successful');
-        setSignupSuccess(true);
+    const handleSignUp = async () => {
+        try {
+            const user = {
+                email: email,
+                username: username,
+                password: password,
+                phone: phoneNumber,
+            };
+            console.log(JSON.stringify(user))
+            const response = await fetch(import.meta.env.VITE_SIGNUP_ENDPOINT || '', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(user),
+            });
+            if (response.ok) {
+                console.log('Sign up successful');
+                setSignupSuccess(true);
+            } else {
+                const errorData = await response.json();
+                alert(`Sign up failed: ${errorData.message}`);
+            }
+        } catch (error) {
+            console.error('Error during sign up:', error);
+            alert('An error occurred during sign up. Please try again.');
+        }
     };
+
 
     if (isSignupSuccess) {
         return (
-            <Verify redirectUri={redirectUri} username={email} />
+            <Verify redirectUri={redirectUri} username={email} phone={phoneNumber} />
         );
     }
 
@@ -97,7 +123,10 @@ const SignUp: React.FC = () => {
                 </div>
                 <p className="text-sm">
                     Already have an account?{' '}
-                    <Link to="/signin" className="text-blue-500 hover:underline">
+                    <Link to={{
+                        pathname: '/signin',
+                        search: searchParams.toString()
+                    }} className="text-blue-500 hover:underline">
                         Sign In
                     </Link>
                 </p>
