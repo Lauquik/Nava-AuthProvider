@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import SignIn from './SignIn';
-import SignUp from './Signup';
+import SignIn from './auth/SignIn';
+import SignUp from './auth/Signup';
 import AppLayout from './PrivateRoute';
 const App: React.FC = () => (
 	<BrowserRouter>

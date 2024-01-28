@@ -1,19 +1,7 @@
 import React, { useState } from 'react';
-import useLoginStore from './store/login';
-import ThankYou from './ThankYou';
-interface VerifyProps {
-    phone: string;
-    username: string;
-    redirectUri: string;
-}
-
-interface VerifyResponse {
-    user_id: string;
-    username: string;
-    email: string;
-    jwt_token: string;
-    expires_in: number;
-  }
+import useLoginStore from '../store/login';
+import ThankYou from '../ThankYou';
+import { VerifyProps, VerifyResponse } from '../types';
 
 const Verify: React.FC<VerifyProps> = (props) => {
     const [otp, setOtp] = useState<string>('');

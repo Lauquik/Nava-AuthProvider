@@ -1,17 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import ThankYou from './ThankYou';
-import useLoginStore from './store/login';
+import ThankYou from '../ThankYou';
+import useLoginStore from '../store/login';
+import { SignInResponse } from '../types';
 
-interface SignInResponse {
-    user_id: string;
-    username: string;
-    email: string;
-    phone: string;
-    additional_info: string;
-    sessions: string[];
-    token: string;
-}
 
 const SignIn: React.FC = () => {
     const location = useLocation();

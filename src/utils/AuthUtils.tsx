@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import useLoginStore from './store/login';
+import useLoginStore from '../store/login';
 const AuthMiddleware = () => {
 
   const navigate = useNavigate();

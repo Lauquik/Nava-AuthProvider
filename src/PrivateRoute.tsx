@@ -13,7 +13,6 @@ const AppLayout: FC<PropsWithChildren> = () => {
       <ThankYou />
     )
   }
-
   return (
     < Outlet />
   )
